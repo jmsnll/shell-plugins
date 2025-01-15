@@ -13,7 +13,7 @@ func New() schema.Plugin {
 			Homepage: sdk.URL("https://github.com/FiloSottile/age"),
 		},
 		Credentials: []schema.CredentialType{
-			AsymmetricKeyPair(),
+			KeyPair(),
 		},
 		Executables: []schema.Executable{
 			AgeCLI(),

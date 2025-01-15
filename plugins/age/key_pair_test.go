@@ -9,7 +9,7 @@ import (
 )
 
 func TestAsymmetricKeyPairProvisioner(t *testing.T) {
-	plugintest.TestProvisioner(t, AsymmetricKeyPair().DefaultProvisioner, map[string]plugintest.ProvisionCase{
+	plugintest.TestProvisioner(t, KeyPair().DefaultProvisioner, map[string]plugintest.ProvisionCase{
 		"defaults-to-encryption-mode": {
 			ItemFields: map[sdk.FieldName]string{
 				fieldname.PrivateKey: "AGE-SECRET-KEY-10000000000000000000000000000000000000000000000000000000000",
