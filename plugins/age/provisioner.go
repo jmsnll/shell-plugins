@@ -2,8 +2,6 @@ package age
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/1Password/shell-plugins/sdk"
 	"github.com/1Password/shell-plugins/sdk/provision"
 )
@@ -34,8 +32,13 @@ func (p KeyPairProvisioner) Provision(ctx context.Context, in sdk.ProvisionInput
 		keyFileMaterialiser = p.keys.private
 		args = []string{"-i", "{{.Path}}"}
 		filename = "age.private.txt"
+		for _, arg := range out.CommandLine {
+			if arg == "-i" || arg == "--identity" {
+				out.AddError(ErrConflictingIdentityFlag)
+			}
+		}
 	default:
-		out.AddError(fmt.Errorf("unknown command: %s", mode))
+		out.AddError(ErrUnknownCommand)
 		return
 	}
 
