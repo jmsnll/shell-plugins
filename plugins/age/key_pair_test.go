@@ -85,5 +85,23 @@ func TestAsymmetricKeyPairProvisioner(t *testing.T) {
 				},
 			},
 		},
+		"decryption-identity-flag-provided": {
+			ItemFields: map[sdk.FieldName]string{
+				fieldname.PrivateKey: "AGE-SECRET-KEY-10000000000000000000000000000000000000000000000000000000000",
+				fieldname.PublicKey:  "age10000000000000000000000000000000000000000000000000000000000",
+			},
+			CommandLine: []string{"age", "-i", "/tmp/age.user_provided_identity_flag.txt", "--decrypt", "-o", "/tmp/encrypted.txt", "/tmp/unencrypted.txt"},
+			ExpectedOutput: sdk.ProvisionOutput{
+				Diagnostics: sdk.Diagnostics{
+					Errors: []sdk.Error{{Message: ErrConflictingIdentityFlag.Error()}},
+				},
+				CommandLine: []string{"age", "-i", "/tmp/age.private.txt", "-i", "/tmp/age.user_provided_identity_flag.txt", "--decrypt", "-o", "/tmp/encrypted.txt", "/tmp/unencrypted.txt"},
+				Files: map[string]sdk.OutputFile{
+					"/tmp/age.private.txt": {
+						Contents: []byte(plugintest.LoadFixture(t, "age.private.txt")),
+					},
+				},
+			},
+		},
 	})
 }
