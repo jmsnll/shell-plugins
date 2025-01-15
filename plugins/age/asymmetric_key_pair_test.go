@@ -10,65 +10,79 @@ import (
 
 func TestAsymmetricKeyPairProvisioner(t *testing.T) {
 	plugintest.TestProvisioner(t, AsymmetricKeyPair().DefaultProvisioner, map[string]plugintest.ProvisionCase{
-		"default": {
-			ItemFields: map[sdk.FieldName]string{ // TODO: Check if this is correct
+		"defaults-to-encryption-mode": {
+			ItemFields: map[sdk.FieldName]string{
 				fieldname.PrivateKey: "AGE-SECRET-KEY-10000000000000000000000000000000000000000000000000000000000",
 				fieldname.PublicKey:  "age10000000000000000000000000000000000000000000000000000000000",
 			},
-			CommandLine: []string{"age"},
+			CommandLine: []string{"age", "-o", "/tmp/encrypted.txt", "/tmp/unencrypted.txt"},
 			ExpectedOutput: sdk.ProvisionOutput{
-				CommandLine: []string{"age", "--identity=/tmp/age.txt"},
+				CommandLine: []string{"age", "-R", "/tmp/age.public.txt", "-o", "/tmp/encrypted.txt", "/tmp/unencrypted.txt"},
 				Files: map[string]sdk.OutputFile{
-					"/tmp/age.txt": {
-						Contents: []byte(plugintest.LoadFixture(t, "age.default.txt")),
+					"/tmp/age.public.txt": {
+						Contents: []byte(plugintest.LoadFixture(t, "age.public.txt")),
 					},
 				},
 			},
 		},
-		"with-args": {
-			ItemFields: map[sdk.FieldName]string{ // TODO: Check if this is correct
+		"explicit-encryption-mode-short": {
+			ItemFields: map[sdk.FieldName]string{
 				fieldname.PrivateKey: "AGE-SECRET-KEY-10000000000000000000000000000000000000000000000000000000000",
 				fieldname.PublicKey:  "age10000000000000000000000000000000000000000000000000000000000",
 			},
-			CommandLine: []string{"age"},
+			CommandLine: []string{"age", "-e", "-o", "/tmp/encrypted.txt", "/tmp/unencrypted.txt"},
 			ExpectedOutput: sdk.ProvisionOutput{
-				CommandLine: []string{"age", "--identity=/tmp/age.txt"},
+				CommandLine: []string{"age", "-R", "/tmp/age.public.txt", "-e", "-o", "/tmp/encrypted.txt", "/tmp/unencrypted.txt"},
 				Files: map[string]sdk.OutputFile{
-					"/tmp/age.txt": {
-						Contents: []byte(plugintest.LoadFixture(t, "age.default.txt")),
+					"/tmp/age.public.txt": {
+						Contents: []byte(plugintest.LoadFixture(t, "age.public.txt")),
 					},
 				},
 			},
 		},
-	})
-}
-
-func TestAsymmetricKeyPairImporter(t *testing.T) {
-	plugintest.TestImporter(t, AsymmetricKeyPair().Importer, map[string]plugintest.ImportCase{
-		"environment": {
-			Environment: map[string]string{ // TODO: Check if this is correct
-				"AGE_KEY": "RQFYZXCY9K3GE3Q0T2GLXLN5JUBEUTHWDYIJF3A831L9L2YG91MQKVP805RZPRRGZLSEXAMPLE",
+		"explicit-encryption-mode-long": {
+			ItemFields: map[sdk.FieldName]string{
+				fieldname.PrivateKey: "AGE-SECRET-KEY-10000000000000000000000000000000000000000000000000000000000",
+				fieldname.PublicKey:  "age10000000000000000000000000000000000000000000000000000000000",
 			},
-			ExpectedCandidates: []sdk.ImportCandidate{
-				{
-					Fields: map[sdk.FieldName]string{
-						fieldname.Key: "RQFYZXCY9K3GE3Q0T2GLXLN5JUBEUTHWDYIJF3A831L9L2YG91MQKVP805RZPRRGZLSEXAMPLE",
+			CommandLine: []string{"age", "--encrypt", "-o", "/tmp/encrypted.txt", "/tmp/unencrypted.txt"},
+			ExpectedOutput: sdk.ProvisionOutput{
+				CommandLine: []string{"age", "-R", "/tmp/age.public.txt", "--encrypt", "-o", "/tmp/encrypted.txt", "/tmp/unencrypted.txt"},
+				Files: map[string]sdk.OutputFile{
+					"/tmp/age.public.txt": {
+						Contents: []byte(plugintest.LoadFixture(t, "age.public.txt")),
 					},
 				},
 			},
 		},
-		// TODO: If you implemented a config file importer, add a test file example in age/test-fixtures
-		// and fill the necessary details in the test template below.
-		"config file": {
-			Files: map[string]string{
-				// "~/path/to/config.yml": plugintest.LoadFixture(t, "config.yml"),
+		"decryption-mode-short": {
+			ItemFields: map[sdk.FieldName]string{
+				fieldname.PrivateKey: "AGE-SECRET-KEY-10000000000000000000000000000000000000000000000000000000000",
+				fieldname.PublicKey:  "age10000000000000000000000000000000000000000000000000000000000",
 			},
-			ExpectedCandidates: []sdk.ImportCandidate{
-				// 	{
-				// 		Fields: map[sdk.FieldName]string{
-				// 			fieldname.Token: "RQFYZXCY9K3GE3Q0T2GLXLN5JUBEUTHWDYIJF3A831L9L2YG91MQKVP805RZPRRGZLSEXAMPLE",
-				// 		},
-				// 	},
+			CommandLine: []string{"age", "-d", "-o", "/tmp/encrypted.txt", "/tmp/unencrypted.txt"},
+			ExpectedOutput: sdk.ProvisionOutput{
+				CommandLine: []string{"age", "-i", "/tmp/age.private.txt", "-d", "-o", "/tmp/encrypted.txt", "/tmp/unencrypted.txt"},
+				Files: map[string]sdk.OutputFile{
+					"/tmp/age.private.txt": {
+						Contents: []byte(plugintest.LoadFixture(t, "age.private.txt")),
+					},
+				},
+			},
+		},
+		"decryption-mode-long": {
+			ItemFields: map[sdk.FieldName]string{
+				fieldname.PrivateKey: "AGE-SECRET-KEY-10000000000000000000000000000000000000000000000000000000000",
+				fieldname.PublicKey:  "age10000000000000000000000000000000000000000000000000000000000",
+			},
+			CommandLine: []string{"age", "--decrypt", "-o", "/tmp/encrypted.txt", "/tmp/unencrypted.txt"},
+			ExpectedOutput: sdk.ProvisionOutput{
+				CommandLine: []string{"age", "-i", "/tmp/age.private.txt", "--decrypt", "-o", "/tmp/encrypted.txt", "/tmp/unencrypted.txt"},
+				Files: map[string]sdk.OutputFile{
+					"/tmp/age.private.txt": {
+						Contents: []byte(plugintest.LoadFixture(t, "age.private.txt")),
+					},
+				},
 			},
 		},
 	})
