@@ -10,7 +10,7 @@ func New() schema.Plugin {
 		Name: "age",
 		Platform: schema.PlatformInfo{
 			Name:     "Age",
-			Homepage: sdk.URL("https://github.com/FiloSottile/age"),
+			Homepage: sdk.URL("https://age-encryption.org/"),
 		},
 		Credentials: []schema.CredentialType{
 			KeyPair(),

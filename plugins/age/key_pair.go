@@ -12,9 +12,8 @@ import (
 
 func KeyPair() schema.CredentialType {
 	return schema.CredentialType{
-		Name:          credname.SecretKey,
-		DocsURL:       sdk.URL("https://age-encryption.org/"),
-		ManagementURL: sdk.URL("https://age-encryption.org/"),
+		Name:    credname.SecretKey,
+		DocsURL: sdk.URL("https://age-encryption.org/"),
 		Fields: []schema.CredentialField{
 			{
 				Name:                fieldname.PublicKey,
