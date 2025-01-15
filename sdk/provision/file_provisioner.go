@@ -20,11 +20,25 @@ type FileProvisioner struct {
 	outpathFixed        string
 	outpathEnvVar       string
 	outdirEnvVar        string
-	setOutpathAsArg     bool
+	argPlacementMode    ArgPlacement
 	outpathArgTemplates []string
 }
 
 type ItemToFileContents func(in sdk.ProvisionInput) ([]byte, error)
+
+type ArgPlacement struct {
+	Mode  ArgPlacementMode
+	Index int // Only used for AtIndex
+}
+
+type ArgPlacementMode int
+
+const (
+	Unset ArgPlacementMode = iota
+	AtEnd
+	AtStart
+	AtIndex
+)
 
 // FieldAsFile can be used to store the value of a single field as a file.
 func FieldAsFile(fieldName sdk.FieldName) ItemToFileContents {
@@ -88,9 +102,9 @@ func SetOutputDirAsEnvVar(envVarName string) FileOption {
 // For example:
 // * `AddArgs("--config-file", "{{ .Path }}")` will result in `--config-file /path/to/tempfile`.
 // * `AddArgs("--config-file={{ .Path }}")` will result in `--config-file=/path/to/tempfile`.
-func AddArgs(argTemplates ...string) FileOption {
+func AddArgs(mode ArgPlacement, argTemplates ...string) FileOption {
 	return func(p *FileProvisioner) {
-		p.setOutpathAsArg = true
+		p.argPlacementMode = mode
 		p.outpathArgTemplates = argTemplates
 	}
 }
@@ -134,7 +148,7 @@ func (p FileProvisioner) Provision(ctx context.Context, in sdk.ProvisionInput, o
 	}
 
 	// Add args to specify the output path.
-	if p.setOutpathAsArg {
+	if p.argPlacementMode.Mode != Unset {
 		tmplData := struct{ Path string }{
 			Path: outpath,
 		}
@@ -159,7 +173,16 @@ func (p FileProvisioner) Provision(ctx context.Context, in sdk.ProvisionInput, o
 			argsResolved[i] = result.String()
 		}
 
-		out.AddArgs(argsResolved...)
+		switch p.argPlacementMode.Mode {
+		case AtEnd:
+			out.AppendArgs(argsResolved...)
+		case AtStart:
+			out.PrependArgs(argsResolved...)
+		case AtIndex:
+			out.AddArgsAtIndex(p.argPlacementMode.Index, argsResolved...)
+		default:
+			out.AddError(fmt.Errorf("invalid argument placement mode"))
+		}
 	}
 }
 
