@@ -20,6 +20,9 @@ func AgeCLI() schema.Executable {
 			{
 				Name: credname.SecretKey,
 			},
+			{
+				Name: credname.Recipients,
+			},
 		},
 	}
 }

@@ -41,7 +41,7 @@ func AsymmetricKeyPair() schema.CredentialType {
 				},
 			},
 		},
-		DefaultProvisioner: TempFile(KeyFiles{
+		DefaultProvisioner: TempAsymmetricFile(KeyFiles{
 			private: materialisePrivateKeyFile,
 			public:  materialisePublicKeyFile,
 		}),

@@ -14,6 +14,7 @@ func New() schema.Plugin {
 		},
 		Credentials: []schema.CredentialType{
 			AsymmetricKeyPair(),
+			Recipients(),
 		},
 		Executables: []schema.Executable{
 			AgeCLI(),

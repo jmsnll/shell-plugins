@@ -20,6 +20,7 @@ const (
 	LoginDetails         = sdk.CredentialName("Login Details")
 	PersonalAPIToken     = sdk.CredentialName("Personal API Token")
 	PersonalAccessToken  = sdk.CredentialName("Personal Access Token")
+	Recipients           = sdk.CredentialName("Recipients")
 	RegistryCredentials  = sdk.CredentialName("Registry Credentials")
 	SecretKey            = sdk.CredentialName("Secret Key")
 	UserLogin            = sdk.CredentialName("User Login")

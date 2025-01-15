@@ -47,6 +47,7 @@ const (
 	PrivateKey      = sdk.FieldName("Private Key")
 	ProjectID       = sdk.FieldName("Project ID")
 	Project         = sdk.FieldName("Project")
+	Recipients      = sdk.FieldName("Recipients")
 	Region          = sdk.FieldName("Region")
 	Secret          = sdk.FieldName("Secret")
 	SecretAccessKey = sdk.FieldName("Secret Access Key")

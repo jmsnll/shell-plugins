@@ -12,28 +12,33 @@ type AsymmetricKeyProvisioner struct {
 	fileOptions []provision.FileOption
 }
 
-type KeyFiles struct {
-	private provision.ItemToFileContents
-	public  provision.ItemToFileContents
+type RecipientsProvisioner struct {
+	recipientsMaterialiser provision.ItemToFileContents
+	fileOptions            []provision.FileOption
 }
 
-// TempFile returns a file provisioner and takes a function that maps a 1Password item to the contents of
+type KeyFiles struct {
+	private    provision.ItemToFileContents
+	public     provision.ItemToFileContents
+	recipients provision.ItemToFileContents
+}
+
+// TempAsymmetricFile returns a file provisioner and takes a function that maps a 1Password item to the contents of
 // a single file.
-func TempFile(keys KeyFiles, opts ...provision.FileOption) sdk.Provisioner {
+func TempAsymmetricFile(keys KeyFiles, opts ...provision.FileOption) sdk.Provisioner {
 	return AsymmetricKeyProvisioner{
 		keys:        keys,
 		fileOptions: opts,
 	}
 }
 
-func (o Operation) String() string {
-	switch o {
-	case Encrypt:
-		return "Encrypt"
-	case Decrypt:
-		return "Decrypt"
+// TempRecipientsFile returns a file provisioner and takes a function that maps a 1Password item to the contents of
+// a single file.
+func TempRecipientsFile(materializer provision.ItemToFileContents, opts ...provision.FileOption) sdk.Provisioner {
+	return RecipientsProvisioner{
+		recipientsMaterialiser: materializer,
+		fileOptions:            opts,
 	}
-	return "Unknown"
 }
 
 const (
@@ -49,6 +54,16 @@ const (
 	Encrypt Operation = iota
 	Decrypt
 )
+
+func (o Operation) String() string {
+	switch o {
+	case Encrypt:
+		return "Encrypt"
+	case Decrypt:
+		return "Decrypt"
+	}
+	return "Unknown"
+}
 
 func (p AsymmetricKeyProvisioner) Provision(ctx context.Context, in sdk.ProvisionInput, out *sdk.ProvisionOutput) {
 	mode := detectOperation(out.CommandLine)
@@ -76,6 +91,32 @@ func (p AsymmetricKeyProvisioner) Provision(ctx context.Context, in sdk.Provisio
 	fileProvisioner.Provision(ctx, in, out)
 }
 
+func (p AsymmetricKeyProvisioner) Deprovision(ctx context.Context, in sdk.DeprovisionInput, out *sdk.DeprovisionOutput) {
+	// Nothing to do here: environment variables get wiped automatically when the process exits.
+}
+
+func (p AsymmetricKeyProvisioner) Description() string {
+	return "Provision temporary file with public & private key pair & pass to age command"
+}
+
+func (p RecipientsProvisioner) Provision(ctx context.Context, in sdk.ProvisionInput, out *sdk.ProvisionOutput) {
+	args := []string{"-R", "{{.Path}}"}
+
+	if detectOperation(out.CommandLine) == Encrypt {
+		p.fileOptions = append(p.fileOptions, provision.Filename("age.recipients.txt"), provision.AddArgs(provision.ArgPlacement{Mode: provision.AtStart}, args...))
+		fileProvisioner := provision.TempFile(p.recipientsMaterialiser, p.fileOptions...)
+		fileProvisioner.Provision(ctx, in, out)
+	}
+}
+
+func (p RecipientsProvisioner) Deprovision(ctx context.Context, in sdk.DeprovisionInput, out *sdk.DeprovisionOutput) {
+	// Nothing to do here: environment variables get wiped automatically when the process exits.
+}
+
+func (p RecipientsProvisioner) Description() string {
+	return "Provision temporary file with public & private key pair & pass to age command"
+}
+
 func detectOperation(args []string) Operation {
 	for _, arg := range args {
 		switch arg {
@@ -86,12 +127,4 @@ func detectOperation(args []string) Operation {
 		}
 	}
 	return Encrypt
-}
-
-func (p AsymmetricKeyProvisioner) Deprovision(ctx context.Context, in sdk.DeprovisionInput, out *sdk.DeprovisionOutput) {
-	// Nothing to do here: environment variables get wiped automatically when the process exits.
-}
-
-func (p AsymmetricKeyProvisioner) Description() string {
-	return "Provision temporary file with public & private key pair & pass to age command"
 }
