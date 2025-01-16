@@ -30,7 +30,7 @@ func (p PublicKeyProvisioner) Description() string {
 
 // PublicKeyTempFile creates a new PublicKeyProvisioner for handling temporary files for the age command.
 func PublicKeyTempFile(publicKey provision.ItemToFileContents, opts ...provision.FileOption) PublicKeyProvisioner {
-	opts = append(opts, provision.Filename("age.private.txt"), provision.PrependArgs("-R", "{{.Path}}"))
+	opts = append(opts, provision.Filename("age.public.txt"), provision.PrependArgs("-R", "{{.Path}}"))
 	return PublicKeyProvisioner{
 		publicKey:   publicKey,
 		fileOptions: opts,
