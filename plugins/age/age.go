@@ -18,7 +18,12 @@ func AgeCLI() schema.Executable {
 		),
 		Uses: []schema.CredentialUsage{
 			{
-				Name: credname.SecretKey,
+				Name:        credname.SecretKey,
+				Description: "Public/private key pair to use for encryption/decryption.",
+			},
+			{
+				Name:        credname.PublicKey,
+				Description: "A list of age recipients (i.e. public keys) to encrypt with.",
 			},
 		},
 	}
