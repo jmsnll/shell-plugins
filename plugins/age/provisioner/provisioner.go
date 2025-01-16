@@ -2,6 +2,7 @@ package provisioner
 
 import (
 	"context"
+	"github.com/1Password/shell-plugins/plugins/age/operation"
 	"github.com/1Password/shell-plugins/sdk"
 	"github.com/1Password/shell-plugins/sdk/provision"
 )
@@ -25,8 +26,13 @@ type KeyPairProvisioner struct {
 // Provision sets up the necessary key file for the `age` command based on the operation mode (Encrypt or Decrypt).
 // It determines the mode from the command line arguments and prepares the corresponding key file.
 func (p KeyPairProvisioner) Provision(ctx context.Context, in sdk.ProvisionInput, out *sdk.ProvisionOutput) {
-	p.private.Provision(ctx, in, out)
-	p.public.Provision(ctx, in, out)
+	switch operation.Detect(out.CommandLine) {
+	case operation.Encrypt:
+		p.public.Provision(ctx, in, out)
+	case operation.Decrypt:
+		p.private.Provision(ctx, in, out)
+
+	}
 }
 
 // Deprovision performs cleanup after the process completes.
