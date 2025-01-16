@@ -2,6 +2,7 @@ package provisioner
 
 import (
 	"context"
+
 	"github.com/1Password/shell-plugins/plugins/age/operation"
 	"github.com/1Password/shell-plugins/sdk"
 	"github.com/1Password/shell-plugins/sdk/provision"
@@ -31,7 +32,6 @@ func (p KeyPairProvisioner) Provision(ctx context.Context, in sdk.ProvisionInput
 		p.public.Provision(ctx, in, out)
 	case operation.Decrypt:
 		p.private.Provision(ctx, in, out)
-
 	}
 }
 
