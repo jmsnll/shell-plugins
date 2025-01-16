@@ -1,9 +1,6 @@
-package age
+package operation
 
-import (
-	"github.com/1Password/shell-plugins/sdk"
-	"github.com/1Password/shell-plugins/sdk/provision"
-)
+import "github.com/1Password/shell-plugins/sdk"
 
 const (
 	decryptShort = "-d"
@@ -21,7 +18,7 @@ const (
 type Operation int
 
 // OperationHandler defines a function to handle specific operations.
-type OperationHandler func(KeyFiles, *sdk.ProvisionOutput) (provision.ItemToFileContents, []string, string)
+type OperationHandler func(out *sdk.ProvisionOutput)
 
 // String returns the string representation of an Operation.
 func (op Operation) String() string {
@@ -35,9 +32,9 @@ func (op Operation) String() string {
 	}
 }
 
-// detectOperation determines the operation (encrypt or decrypt) based on the provided command-line arguments.
+// Detect determines the operation (encrypt or decrypt) based on the provided command-line arguments.
 // If no valid operation flags are detected, it defaults to encryption mode.
-func detectOperation(args []string) Operation {
+func Detect(args []string) Operation {
 	for _, arg := range args {
 		switch arg {
 		case decryptShort, decryptLong:
