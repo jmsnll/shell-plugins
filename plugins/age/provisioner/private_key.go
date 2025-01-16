@@ -15,6 +15,12 @@ type PrivateKeyProvisioner struct {
 // Provision sets up the necessary key file for the `age` command based on the operation mode (Encrypt or Decrypt).
 // It determines the mode from the command line arguments and prepares the corresponding key file.
 func (p PrivateKeyProvisioner) Provision(ctx context.Context, in sdk.ProvisionInput, out *sdk.ProvisionOutput) {
+	for _, arg := range out.CommandLine {
+		if arg == "-i" || arg == "--identity" {
+			out.AddError(ErrConflictingIdentityFlag)
+		}
+	}
+
 	fileProvisioner := provision.TempFile(p.privateKey, p.fileOptions...)
 	fileProvisioner.Provision(ctx, in, out)
 }
