@@ -1,7 +1,5 @@
 package operation
 
-import "github.com/1Password/shell-plugins/sdk"
-
 const (
 	decryptShort = "-d"
 	decryptLong  = "--decrypt"
@@ -16,9 +14,6 @@ const (
 
 // Operation defines the type of action (encryption or decryption) to be performed.
 type Operation int
-
-// OperationHandler defines a function to handle specific operations.
-type OperationHandler func(out *sdk.ProvisionOutput)
 
 // String returns the string representation of an Operation.
 func (op Operation) String() string {
